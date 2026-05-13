@@ -68,11 +68,26 @@ router.get('/products', async (req, res) => {
 // POST /api/admin/products
 router.post('/products', async (req, res) => {
   try {
-    const { name, description, price, category_id, stock_qty, age_min, age_max, images } = req.body
-    if (!name || !price || !category_id)
+    let { name, description, price, category, category_id, stock, stock_qty, age_range, age_min, age_max, image, images } = req.body
+    
+    const resolvedStock = stock_qty !== undefined ? stock_qty : (stock !== undefined ? stock : 0)
+    const resolvedImages = images || (image ? [image] : [])
+    
+    let resolvedCategory = category_id
+    if (category && (!resolvedCategory || typeof resolvedCategory !== 'string' || resolvedCategory.length !== 24)) {
+      const catDoc = await Category.findOne({ slug: category })
+      if (catDoc) resolvedCategory = catDoc._id
+    }
+    
+    if (age_range && !age_min && !age_max) {
+      age_min = parseInt(age_range) || 3
+      age_max = 99
+    }
+
+    if (!name || !price || !resolvedCategory)
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Name, price and category are required' } })
 
-    const product = await Product.create({ name, description, price, category_id, stock_qty: stock_qty || 0, age_min, age_max, images: images || [] })
+    const product = await Product.create({ name, description, price, category_id: resolvedCategory, stock_qty: resolvedStock, age_min, age_max, images: resolvedImages })
     res.status(201).json({ success: true, data: product })
   } catch (err) {
     res.status(500).json({ success: false, error: { code: 'SERVER_ERROR', message: err.message } })
@@ -82,7 +97,34 @@ router.post('/products', async (req, res) => {
 // PUT /api/admin/products/:id
 router.put('/products/:id', async (req, res) => {
   try {
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true }).lean()
+    let { name, description, price, category, category_id, stock, stock_qty, age_range, age_min, age_max, image, images } = req.body
+    
+    const updateData = { name, description, price }
+    
+    if (stock_qty !== undefined) updateData.stock_qty = stock_qty
+    else if (stock !== undefined) updateData.stock_qty = stock
+    
+    if (images !== undefined) updateData.images = images
+    else if (image !== undefined) updateData.images = [image]
+    
+    if (category_id) {
+      updateData.category_id = category_id
+    } else if (category) {
+      const catDoc = await Category.findOne({ slug: category })
+      if (catDoc) updateData.category_id = catDoc._id
+    }
+    
+    if (age_range) {
+      updateData.age_min = parseInt(age_range) || 3
+      updateData.age_max = 99
+    } else {
+      if (age_min !== undefined) updateData.age_min = age_min
+      if (age_max !== undefined) updateData.age_max = age_max
+    }
+
+    Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key])
+
+    const product = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true }).lean()
     if (!product) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Product not found' } })
     res.json({ success: true, data: product })
   } catch (err) {

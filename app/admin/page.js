@@ -7,7 +7,10 @@ import { apiFetch } from '@/lib/api';
 import Link from 'next/link';
 import { ArrowRight, Loader2 } from 'lucide-react';
 
+import { useRouter } from 'next/navigation';
+
 export default function AdminDashboard() {
+  const router = useRouter();
   const [stats, setStats] = useState({ orders_today: 0, total_revenue: 0, low_stock: [] });
   const [lowStockProducts, setLowStockProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -56,9 +59,12 @@ export default function AdminDashboard() {
           <h2 className="text-xl font-bold font-display text-cobalt">Low Stock Alert</h2>
           <Link href="/admin/products" className="text-sm font-bold text-cobalt hover:text-yellow flex items-center gap-1 transition-colors">
             Manage Products <ArrowRight size={16} />
-          </Link>
         </div>
-        <ProductTable products={lowStockProducts} onEdit={() => {}} onDelete={() => {}} />
+        <ProductTable 
+          products={lowStockProducts} 
+          onEdit={() => router.push('/admin/products')} 
+          onDelete={() => router.push('/admin/products')} 
+        />
       </div>
     </div>
   );
