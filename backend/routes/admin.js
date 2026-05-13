@@ -45,7 +45,7 @@ router.get('/products', async (req, res) => {
     const mapProduct = (p) => {
       let imageUrl = p.images && p.images.length > 0 ? p.images[0] : 'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=800&q=80';
       if (imageUrl.includes('http://127.0.0.1:5001')) {
-        imageUrl = imageUrl.replace('http://127.0.0.1:5001', `${req.protocol}://${req.get('host')}`);
+        imageUrl = imageUrl.replace('http://127.0.0.1:5001', `https://${req.get('host')}`);
       }
       return {
         ...p,
