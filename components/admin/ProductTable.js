@@ -3,7 +3,7 @@ import { Edit2, Trash2 } from 'lucide-react';
 
 export default function ProductTable({ products, onEdit, onDelete }) {
 
-  products.map(pro => console.log(pro.images[0]));
+  products.map(pro => console.log("hi"));
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-border overflow-hidden">
       <div className="overflow-x-auto">
@@ -23,7 +23,7 @@ export default function ProductTable({ products, onEdit, onDelete }) {
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-border">
-                      <Image src={product.images[0]} alt={product.name} fill className="object-cover" />
+                      <Image src={product.image} alt={product.name} fill className="object-cover" />
                     </div>
                     <span className="font-bold text-charcoal truncate max-w-[200px]">{product.name}</span>
                   </div>
