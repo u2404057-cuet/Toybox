@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { LayoutDashboard, Package, ShoppingBag, LogOut, Loader2 } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingBag, LogOut, Loader2, Menu, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function AdminLayout({ children }) {
   const { isAdmin, isLoggedIn, isLoading, logout } = useAuth();
   const router = useRouter();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!isLoading && (!isLoggedIn || !isAdmin)) {
@@ -27,9 +28,17 @@ export default function AdminLayout({ children }) {
   if (!isLoggedIn || !isAdmin) return null;
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex bg-gray-50 relative">
+      {/* Mobile Backdrop */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-charcoal/50 z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Admin Sidebar */}
-      <aside className="w-64 bg-cobalt text-white flex flex-col shrink-0">
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-cobalt text-white flex flex-col transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-transform duration-200 ease-in-out`}>
         <div className="p-6 border-b border-white/10">
           <Link href="/" className="font-display text-2xl font-black tracking-tight">
             <span className="text-white">Toy</span>
@@ -65,8 +74,25 @@ export default function AdminLayout({ children }) {
       </aside>
       
       {/* Admin Content */}
-      <main className="flex-1 overflow-auto bg-gray-50 p-8">
-        {children}
+      <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-gray-50">
+        {/* Mobile Header */}
+        <div className="md:hidden flex items-center justify-between p-4 bg-white border-b border-border">
+          <Link href="/" className="font-display text-xl font-black tracking-tight">
+            <span className="text-cobalt">Toy</span>
+            <span className="text-yellow">Box</span>
+          </Link>
+          <button 
+            onClick={() => setIsSidebarOpen(true)}
+            className="p-2 text-charcoal hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <Menu size={24} />
+          </button>
+        </div>
+        
+        {/* Main Content Area */}
+        <div className="flex-1 overflow-auto p-4 md:p-8">
+          {children}
+        </div>
       </main>
     </div>
   );
