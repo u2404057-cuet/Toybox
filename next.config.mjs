@@ -23,6 +23,11 @@ const nextConfig = {
         port: '5001',
         pathname: '/uploads/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'toybox-production.up.railway.app',
+        pathname: '/uploads/**',
+      },
     ],
     dangerouslyAllowSVG: true,
     unoptimized: process.env.NODE_ENV === 'development',
