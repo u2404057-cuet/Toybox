@@ -20,6 +20,10 @@ app.use('/api/profile',    require('./routes/profile'))
 app.use('/api/orders',     require('./routes/orders'))
 app.use('/api/admin',      require('./routes/admin'))
 
+app.get('/', (req, res) => {
+  res.json({ success: true, message: 'Welcome to the ToyBox API' })
+})
+
 app.get('/api/health', (req, res) => {
   res.json({ success: true, data: 'ToyBox API is running' })
 })
